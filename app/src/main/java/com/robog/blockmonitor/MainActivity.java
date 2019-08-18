@@ -2,20 +2,24 @@ package com.robog.blockmonitor;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.View;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        doWork();
+        findViewById(R.id.bt).setOnClickListener(this);
     }
 
-    private void doWork() {
-        final long startTime = System.currentTimeMillis();
-        while ((System.currentTimeMillis() - startTime) < 200) {
-
+    @Override
+    public void onClick(View view) {
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
     }
+
 }

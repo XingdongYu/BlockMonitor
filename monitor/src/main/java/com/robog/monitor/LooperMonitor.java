@@ -1,7 +1,5 @@
 package com.robog.monitor;
 
-import android.os.SystemClock;
-import android.util.Log;
 import android.util.Printer;
 
 
@@ -10,39 +8,33 @@ import android.util.Printer;
  */
 public class LooperMonitor implements Printer {
 
-    private static final String TAG = "LooperMonitor";
+    private boolean mIsStart = true;
 
-    private boolean isFirst = true;
-
-    private boolean isStart = true;
-
-    private long startTime;
-
-    private long startThreadTime;
+    private long mStartTime;
 
     @Override
     public void println(String x) {
-        if (isFirst) {
-            isFirst = false;
-            return;
-        }
 
-        if (isStart) {
-            startTime = System.currentTimeMillis();
-            startThreadTime = SystemClock.currentThreadTimeMillis();
+        if (mIsStart) {
+            mStartTime = System.currentTimeMillis();
+            BlockMonitor.getInstance().getStackSampler().start();
         } else {
             final long endTime = System.currentTimeMillis();
-            final long endThreadTime = SystemClock.currentThreadTimeMillis();
 
-            final long costTime = endTime - startTime;
+            final long costTime = endTime - mStartTime;
             if (costTime > 100) {
-                Log.e(TAG, "println: " + costTime);
-
+               notifyBlockEvent(endTime);
             }
+            BlockMonitor.getInstance().getStackSampler().stop();
         }
-        isStart = !isStart;
+        mIsStart = !mIsStart;
 
     }
 
+    private void notifyBlockEvent(long endTime) {
+        BlockMonitor.getInstance()
+                .getStackSampler()
+                .printThreadStackEntries(mStartTime, endTime);
+    }
 
 }
